@@ -105,3 +105,14 @@ if [ -z "$BUILD_NUMBER" ]; then
   # presume local workstation, use date-based build number
   export BUILD_NUMBER=`date +%H%M`  # hour + minute
 fi
+
+
+function nuget_packages_restore() {
+  echo "Build is restoring NuGet packages"
+  nuget restore $SOLUTION_FILE -Source $NUGET_FETCH_URL
+}
+
+function nuget_packages_update() {
+  echo "Build is updating NuGet packages to latest compatible versions"
+  nuget update $SOLUTION_FILE -Source $NUGET_FETCH_URL
+}
