@@ -116,3 +116,8 @@ function nuget_packages_update() {
   echo "Build is updating NuGet packages to latest compatible versions"
   nuget update $SOLUTION_FILE -Source $NUGET_FETCH_URL
 }
+
+function nuget_packages_refresh() {
+  nuget_packages_restore()
+  nuget_packages_update()
+}
