@@ -118,6 +118,6 @@ function nuget_packages_update() {
 }
 
 function nuget_packages_refresh() {
-  nuget_packages_restore()
-  nuget_packages_update()
+  nuget_packages_restore
+  nuget_packages_update
 }
