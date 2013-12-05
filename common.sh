@@ -1,6 +1,9 @@
+set -x # echo commands and their arguments during execution
+
 # fix for jenkins inserting the windows-style path in $WORKSPACE
 cd "$WORKSPACE"
 export WORKSPACE=`pwd`
+
 
 # ----- Utility functions -----------------------------------------------------
 
