@@ -12,7 +12,7 @@ function winpath() {
   # via dumb substitution. Handles drive letters; incurs process creation penalty for sed.
   if [ -e /etc/bash.bashrc ] ; then
     # Cygwin specific settings
-    echo "`cygpath -w $1`"
+    echo `cygpath -w $1`
   else
     # Msysgit specific settings
     echo "$1" | sed -e 's|^/\(\w\)/|\1:\\|g;s|/|\\|g'
@@ -24,7 +24,7 @@ function bashpath() {
   # via dumb substitution. Handles drive letters; incurs process creation penalty for sed.
   if [ -e /etc/bash.bashrc ] ; then
     # Cygwin specific settings
-    echo "`cygpath $1`"
+    echo `cygpath $1`
   else
     # Msysgit specific settings
     echo "$1" | sed -e 's|\(\w\):|/\1|g;s|\\|/|g'
@@ -47,9 +47,10 @@ function parentwith() {  # used to find $WORKSPACE, below.
   echo "$DIR"
   }
 
+# ----- Variable Defaults -----------------------------------------------------
 
-# If we aren't running under jenkins. some variables will be unset.
-# So set them to a reasonable value
+# If we aren't running under Jenkins, some variables will be unset.
+# So set them to a reasonable value.
 
 if [ -z "$WORKSPACE" ]; then
   export WORKSPACE=`parentwith .git`;
@@ -76,16 +77,21 @@ if [ ! $(which $BUILDTOOLS_PATH/NuGet.exe) ] && [ $(which $WORKSPACE/.nuget/NuGe
 fi
 echo "Using $BUILDTOOLS_PATH for NuGet"
 
-if [ -z "$DOTNET_PATH" ]; then
-  for D in `bashpath "$SYSTEMROOT\\Microsoft.NET\\Framework\\v*"`; do
-    if [ -d $D ]; then
-      export DOTNET_PATH="$D"
-    fi
-  done
-fi
-echo "Using $DOTNET_PATH for .NET"
+# Find possible MSBuild paths for .NET 1-4
+FIND_PATH=`bashpath "$SYSTEMROOT\\Microsoft.NET\\Framework"`
+DIRECTORY_ARRAY=("`find "$FIND_PATH" -maxdepth 1 -type d -regex '^.*v[1-4].*'`")
+# Find possible MSBuild paths for .NET 4.5.1+
+FIND_PATH=`bashpath "$PROGRAMFILES\\MSBuild"`
+DIRECTORY_ARRAY+=("`find "$FIND_PATH" -type d -regex '^.*[1-9][0-9]\..*\\Bin'`")
+# Iterate over all possible MSBuild paths and use the latest.
+ARRAY_LEN=${#DIRECTORY_ARRAY[@]}
+for (( i=0; i<${ARRAY_LEN}; i++ ));
+do
+  export MSBUILD_PATH="${DIRECTORY_ARRAY[$i]}"
+done
+echo "Using $MSBUILD_PATH for MSBuild"
 
-export PATH="$PATH:$BUILDTOOLS_PATH:$DOTNET_PATH"
+export PATH="$PATH:$BUILDTOOLS_PATH:$MSBUILD_PATH"
 
 if [ -z "$SIGNING_KEY_DIR" ]; then
   export SIGNING_KEY_DIR=`pwd`;
@@ -109,6 +115,9 @@ if [ -z "$BUILD_NUMBER" ]; then
   export BUILD_NUMBER=`date +%H%M`  # hour + minute
 fi
 
+
+
+# ----- NuGet functions -------------------------------------------------------
 
 function nuget_packages_restore() {
   echo "Build is restoring NuGet packages"
