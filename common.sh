@@ -1,3 +1,4 @@
+#!/usr/bin/env bash
 set -x # echo commands and their arguments during execution
 
 # fix for jenkins inserting the windows-style path in $WORKSPACE
@@ -77,9 +78,11 @@ if [ ! $(which $BUILDTOOLS_PATH/NuGet.exe) ] && [ $(which $WORKSPACE/.nuget/NuGe
 fi
 echo "Using $BUILDTOOLS_PATH for NuGet"
 
+echo $(which find)
+
 # Find possible MSBuild paths for .NET 1-4
 FIND_PATH=`bashpath "$SYSTEMROOT\\Microsoft.NET\\Framework"`
-DIRECTORY_ARRAY=("`find "$FIND_PATH" -maxdepth 1 -type d -regex '^.*v[1-4].*'`")
+DIRECTORY_ARRAY=(`find "$FIND_PATH" -maxdepth 1 -type d -regex '^.*v[1-4].*'`)
 # Find possible MSBuild paths for .NET 4.5.1+
 FIND_PATH=`bashpath "$PROGRAMFILES\\MSBuild"`
 DIRECTORY_ARRAY+=("`find "$FIND_PATH" -type d -regex '^.*[1-9][0-9]\..*\\Bin'`")
