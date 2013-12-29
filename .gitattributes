@@ -1,0 +1,8 @@
+# Text files
+# Normalize crlf => lf
+*.md		text
+*.html      text
+
+# *nix only
+*.sh			eol=lf
+*.properties	eol=lf
