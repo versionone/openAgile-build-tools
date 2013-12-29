@@ -1,5 +1,14 @@
 #!/usr/bin/env bash
 
+# ----- Workspace -------------------------------------------------------------
+## Should be set by Jenkins or a previous script.
+## Need a default value for testing.
+if [ -z "$WORKSPACE" ]; then
+  export WORKSPACE=`pwd`;
+fi
+
+
+
 # ----- Save Variables --------------------------------------------------------
 ## Save envars corresponding to this build run for future promotion
 cat > $WORKSPACE/buildtime.properties <<EOF
