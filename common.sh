@@ -6,6 +6,7 @@ cd "$WORKSPACE"
 export WORKSPACE=`pwd`
 
 
+
 # ----- Utility functions -----------------------------------------------------
 
 function winpath() {
@@ -48,6 +49,27 @@ function parentwith() {  # used to find $WORKSPACE, below.
   echo "$DIR"
   }
 
+function findmsbuildin() {  # used to find MS Build, below.
+  # Checking subdirs of the parameter, returns the last dir containing MS Build.
+  # If not found returns pwd.
+  # Requires changing the default separator (IFS) to handle spaces in names.
+  SAVEIFS=$IFS
+  IFS=$(echo -en "\n\b")
+  DIR=`pwd`
+  for D in `bashpath "$1"`/*; do
+    if [ -e "$D/MSBuild.exe" ]; then
+      DIR="$D"
+    fi
+    if [ -e "$D/Bin/MSBuild.exe" ]; then
+      DIR="$D/Bin"
+    fi
+  done
+  IFS=$SAVEIFS
+  echo "$DIR"
+  }
+
+
+
 # ----- Variable Defaults -----------------------------------------------------
 
 # If we aren't running under Jenkins, some variables will be unset.
@@ -78,20 +100,12 @@ if [ ! $(which $BUILDTOOLS_PATH/NuGet.exe) ] && [ $(which $WORKSPACE/.nuget/NuGe
 fi
 echo "Using $BUILDTOOLS_PATH for NuGet"
 
-echo $(which find)
-
-# Find possible MSBuild paths for .NET 1-4
-FIND_PATH=`bashpath "$SYSTEMROOT\\Microsoft.NET\\Framework"`
-DIRECTORY_ARRAY=(`find "$FIND_PATH" -maxdepth 1 -type d -regex '^.*v[1-4].*'`)
-# Find possible MSBuild paths for .NET 4.5.1+
-FIND_PATH=`bashpath "$PROGRAMFILES\\MSBuild"`
-DIRECTORY_ARRAY+=("`find "$FIND_PATH" -type d -regex '^.*[1-9][0-9]\..*\\Bin'`")
-# Iterate over all possible MSBuild paths and use the latest.
-ARRAY_LEN=${#DIRECTORY_ARRAY[@]}
-for (( i=0; i<${ARRAY_LEN}; i++ ));
-do
-  export MSBUILD_PATH="${DIRECTORY_ARRAY[$i]}"
-done
+# As of .NET 4.5.1 and VS2013, MS Build is now separate. Use it if available.
+MSBUILD_PATH=`findmsbuildin "$PROGRAMFILES\\MSBuild"`
+# If not found, fall back to MS Build packaged with earlier .NET.
+if [ `pwd` = "$MSBUILD_PATH" ]; then
+  MSBUILD_PATH=`findmsbuildin "$SYSTEMROOT\\Microsoft.NET\\Framework"`
+fi
 echo "Using $MSBUILD_PATH for MSBuild"
 
 export PATH="$PATH:$BUILDTOOLS_PATH:$MSBUILD_PATH"
