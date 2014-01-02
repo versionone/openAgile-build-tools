@@ -7,6 +7,10 @@ export WORKSPACE=`pwd`
 
 
 
+NUGET_DIR="$WORKSPACE/.nuget"
+NUGET_EXE="$WORKSPACE/.nuget/nuget.exe"
+
+
 # ----- Utility functions -----------------------------------------------------
 
 function winpath() {
@@ -86,21 +90,13 @@ for D in $TOOLSDIRS; do
   fi
 done
 
-echo $(which $BUILDTOOLS_PATH/NuGet.exe)
-echo $(which $WORKSPACE/.nuget/NuGet.exe)
 
-if [ ! $(which $BUILDTOOLS_PATH/NuGet.exe) ] && [ -d "$WORKSPACE/.nuget" ] && [ ! $(which "$WORKSPACE/.nuget/nuget.exe") ]; then
+if [ ! -e "$NUGET_EXE" ]; then
   # Get the latest nuget.exe
-  pushd $WORKSPACE
   echo "Build is downloading the latest nuget.exe"
-  powershell -NoProfile -ExecutionPolicy unrestricted -Command "(new-object System.Net.WebClient).Downloadfile('http://nuget.org/nuget.exe', './.nuget/nuget.exe')"
-  popd
+  curl --create-dirs -o "$NUGET_EXE" http://nuget.org/nuget.exe
 fi
 
-if [ ! $(which $BUILDTOOLS_PATH/NuGet.exe) ] && [ $(which $WORKSPACE/.nuget/NuGet.exe) ]; then
-  export BUILDTOOLS_PATH="$WORKSPACE/.nuget"
-fi
-echo "Using $BUILDTOOLS_PATH for NuGet"
 
 # As of .NET 4.5.1 and VS2013, MS Build is now separate. Use it if available.
 MSBUILD_PATH=`findmsbuildin "$PROGRAMFILES\\MSBuild"`
@@ -110,7 +106,7 @@ if [ `pwd` = "$MSBUILD_PATH" ]; then
 fi
 echo "Using $MSBUILD_PATH for MSBuild"
 
-export PATH="$PATH:$BUILDTOOLS_PATH:$MSBUILD_PATH"
+export PATH="$PATH:$MSBUILD_PATH"
 
 if [ -z "$SIGNING_KEY_DIR" ]; then
   export SIGNING_KEY_DIR=`pwd`;
@@ -140,12 +136,12 @@ fi
 
 function nuget_packages_restore() {
   echo "Build is restoring NuGet packages"
-  nuget restore $SOLUTION_FILE -Source $NUGET_FETCH_URL
+  "$NUGET_EXE" restore $SOLUTION_FILE -Source $NUGET_FETCH_URL
 }
 
 function nuget_packages_update() {
   echo "Build is updating NuGet packages to latest compatible versions"
-  nuget update $SOLUTION_FILE -Source $NUGET_FETCH_URL
+  "$NUGET_EXE" update $SOLUTION_FILE -Source $NUGET_FETCH_URL
 }
 
 function nuget_packages_refresh() {
