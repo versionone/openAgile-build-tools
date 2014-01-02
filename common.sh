@@ -94,7 +94,8 @@ done
 if [ ! -e "$NUGET_EXE" ]; then
   # Get the latest nuget.exe
   echo "Build is downloading the latest nuget.exe"
-  curl --create-dirs -o "$NUGET_EXE" http://nuget.org/nuget.exe
+  mkdir -p "$NUGET_DIR"
+  curl --location -o "$NUGET_EXE" http://nuget.org/nuget.exe
 fi
 
 
