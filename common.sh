@@ -91,8 +91,10 @@ echo $(which $WORKSPACE/.nuget/NuGet.exe)
 
 if [ ! $(which $BUILDTOOLS_PATH/NuGet.exe) ] && [ -d "$WORKSPACE/.nuget" ] && [ ! $(which "$WORKSPACE/.nuget/nuget.exe") ]; then
   # Get the latest nuget.exe
+  pushd $WORKSPACE
   echo "Build is downloading the latest nuget.exe"
   powershell -NoProfile -ExecutionPolicy unrestricted -Command "(new-object System.Net.WebClient).Downloadfile('http://nuget.org/nuget.exe', './.nuget/nuget.exe')"
+  popd
 fi
 
 if [ ! $(which $BUILDTOOLS_PATH/NuGet.exe) ] && [ $(which $WORKSPACE/.nuget/NuGet.exe) ]; then
