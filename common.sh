@@ -7,10 +7,6 @@ export WORKSPACE=`pwd`
 
 
 
-NUGET_DIR="$WORKSPACE/.nuget"
-NUGET_EXE="$WORKSPACE/.nuget/nuget.exe"
-
-
 # ----- Utility functions -----------------------------------------------------
 
 function winpath() {
@@ -90,24 +86,38 @@ for D in $TOOLSDIRS; do
   fi
 done
 
+if [ -z "$NUGET_DIR" ]; then
+  NUGET_DIR="$WORKSPACE/.nuget"
+fi
+
+if [ ! -e "$NUGET_DIR" ]; then
+  mkdir -p "$NUGET_DIR"
+fi
+
+if [ -z "$NUGET_EXE" ]; then
+  NUGET_EXE="$NUGET_DIR/nuget.exe"
+fi
 
 if [ ! -e "$NUGET_EXE" ]; then
   # Get the latest nuget.exe
   echo "Build is downloading the latest nuget.exe"
-  mkdir -p "$NUGET_DIR"
   curl --location -o "$NUGET_EXE" http://nuget.org/nuget.exe
 fi
 
-
-# As of .NET 4.5.1 and VS2013, MS Build is now separate. Use it if available.
-MSBUILD_PATH=`findmsbuildin "$PROGRAMFILES\\MSBuild"`
-# If not found, fall back to MS Build packaged with earlier .NET.
-if [ `pwd` = "$MSBUILD_PATH" ]; then
-  MSBUILD_PATH=`findmsbuildin "$SYSTEMROOT\\Microsoft.NET\\Framework"`
+if [ -z "$MSBUILD_DIR" ]; then
+  # As of .NET 4.5.1 and VS2013, MS Build is now separate. Use it if available.
+  MSBUILD_DIR=`findmsbuildin "$PROGRAMFILES\\MSBuild"`
+  # If not found, fall back to MS Build packaged with earlier .NET.
+  if [ `pwd` = "$MSBUILD_DIR" ]; then
+    MSBUILD_DIR=`findmsbuildin "$SYSTEMROOT\\Microsoft.NET\\Framework"`
+  fi
 fi
-echo "Using $MSBUILD_PATH for MSBuild"
 
-export PATH="$PATH:$MSBUILD_PATH"
+if [ -z "$MSBUILD_EXE" ]; then
+  MSBUILD_EXE="$MSBUILD_DIR/MSBuild.exe"
+fi
+
+export PATH="$PATH:$MSBUILD_DIR"
 
 if [ -z "$SIGNING_KEY_DIR" ]; then
   export SIGNING_KEY_DIR=`pwd`;
