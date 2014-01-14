@@ -42,14 +42,14 @@ fi
 
 # ---- Produce NuGet .nupkg file ----------------------------------------------------------
 
-PROJECT_PATH="$MAIN_DIR/$MAIN_CSPROJ"
-"$NUGET_EXE" pack `winpath "$PROJECT_PATH"` -Symbols -prop Configuration=$Configuration
+PROJECT_PATH=`winpath "$MAIN_DIR/$MAIN_CSPROJ"`
+"$NUGET_EXE" pack "$PROJECT_PATH" -Symbols -prop Configuration=$Configuration
 
 
 
 # ----- Publish Changes to Staging --------------------------------------------
 
-for PKG in "$MAIN_DIR/*[0-9].nupkg"; do
+for PKG in "$WORKSPACE/$MAIN_DIR/*[0-9].nupkg"; do
   echo "Pushing $PKG to MyGet.org"
   "$NUGET_EXE" push $PKG $MYGET_API_KEY -Source "$MYGET_REPO_URL"
 done
