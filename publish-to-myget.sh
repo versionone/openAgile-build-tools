@@ -50,7 +50,7 @@ PROJECT_PATH=`winpath "$MAIN_DIR/$MAIN_CSPROJ"`
 # ----- Publish Changes to Staging --------------------------------------------
 
 cd $WORKSPACE/$MAIN_DIR
-for PKG in "*[0-9].nupkg"; do
+for PKG in *[0-9].nupkg; do
   echo "Pushing $PKG to MyGet.org"
   "$NUGET_EXE" push $PKG $MYGET_API_KEY -Source "$MYGET_REPO_URL"
 done
