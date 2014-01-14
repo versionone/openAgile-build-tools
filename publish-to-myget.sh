@@ -41,7 +41,7 @@ fi
 # ---- Produce NuGet .nupkg file ----------------------------------------------------------
 
 PROJECT_PATH="$MAIN_DIR/$MAIN_CSPROJ"
-"$NUGET_EXE" pack $PROJECT_PATH -Symbols -prop Configuration=$Configuration
+"$NUGET_EXE" pack `winpath "$PROJECT_PATH"` -Symbols -prop Configuration=$Configuration
 
 
 
