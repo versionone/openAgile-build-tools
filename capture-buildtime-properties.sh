@@ -1,11 +1,17 @@
 #!/usr/bin/env bash
+set -ex
+## x = exit immediately if a pipeline returns a non-zero status.
+## e = print a trace of commands and their arguments during execution.
+## See: http://www.gnu.org/software/bash/manual/html_node/The-Set-Builtin.html#The-Set-Builtin
 
-# ----- Workspace -------------------------------------------------------------
-## Should be set by Jenkins or a previous script.
-## Need a default value for testing.
-if [ -z "$WORKSPACE" ]; then
-  export WORKSPACE=`pwd`;
-fi
+# ----- Variables -------------------------------------------------------------
+# Variables in the build.properties file will be available to Jenkins
+# build steps. Variables local to this script can be defined below.
+. ./build.properties
+
+# fix for jenkins inserting the windows-style path in $WORKSPACE
+cd "$WORKSPACE"
+export WORKSPACE=`pwd`
 
 
 
