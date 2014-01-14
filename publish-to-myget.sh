@@ -13,6 +13,8 @@ set -ex
 cd "$WORKSPACE"
 export WORKSPACE=`pwd`
 
+source $WORKSPACE/../build-tools/common.sh
+
 
 
 # ----- Variable Defaults -----------------------------------------------------
