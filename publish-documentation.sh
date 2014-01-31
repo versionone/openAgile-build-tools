@@ -5,11 +5,7 @@ set -ex
 ## See: http://www.gnu.org/software/bash/manual/html_node/The-Set-Builtin.html#The-Set-Builtin
 
 # ----- Prepare Branches ------------------------------------------------------
-## Stash changes so we can checkout gh-pages and a clean master.
-if ! git diff-index --quiet HEAD --; then
-  git stash
-fi
-git checkout gh-pages
+git checkout -f gh-pages
 git checkout master
 
 
@@ -24,6 +20,5 @@ git update-ref refs/heads/gh-pages $new_commit
 
 
 # ----- Push Docs -------------------------------------------------------------
-## Push changes and pop the stack, if any.
+## Push changes.
 git push origin gh-pages
-git stash pop
